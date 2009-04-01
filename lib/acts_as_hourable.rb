@@ -1,10 +1,21 @@
+require 'acts_as_hourable/extensions'
+
 # ActsAsHourable
 module ActsAsHourable
   
   def self.included(base)
     base.extend(ClassMethods)
   end
-  
+
+  # Module singleton method -- Dave Thomas at sor09
+  class << self
+    def round_to_decimal_place(value, decimal_places = nil)
+      decimal_places ||= 1
+      squared_value = 10**decimal_places
+      (value * squared_value).round / squared_value.to_f  
+    end
+  end
+          
   module ClassMethods
     def acts_as_hourable(*columns)
       # Pop the last item off the array if its a Hash, otherwise create a blank one
@@ -25,12 +36,11 @@ module ActsAsHourable
     
     # Returns a number to x decimal places -- strangely this is the fastest way to do it
     # http://groups.google.com/group/comp.lang.ruby/browse_thread/thread/243f32c9f36409c2
+    # Note: this is a longer (but backward compatible) way -- it's easy now to use
+    # FixNum#seconds_in_hours(decimal_places)
     def round_to_decimal_place(value, decimal_places = nil)
-      return if value.blank?
-      decimal_places ||= self.acts_as_hourable_options[:decimal_places] || 1
-      
-      squared_value = 10**decimal_places
-      (value * squared_value).round / squared_value.to_f      
+      $stderr.puts "WARNING: Class#round_to_decimal_place is being deprecated in favour of ActsAsHourable::round_to_decimal_place"
+      ActsAsHourable::round_to_decimal_place(value, decimal_places)
     end
       
     private
@@ -41,7 +51,7 @@ module ActsAsHourable
           return nil if self.#{column_name}.blank?
 
           in_hours = self.#{column_name} / 1.hour.to_f
-          self.class.round_to_decimal_place(in_hours, decimal_places)
+          ActsAsHourable::round_to_decimal_place(in_hours, decimal_places)
         end
         
         def #{column_name}#{self.acts_as_hourable_options[:suffix]}=(value)

@@ -1,0 +1,7 @@
+== 0.2 1/4/2009
+* Rewrote internals a bit
+* Added some tests, though missing tests that show it's being mixed with AR correctly
+
+== 0.1 ?
+
+* Initial release
